@@ -20,26 +20,26 @@ function preload()
 	game.load.image('background', 'assets/background.jpg');
 	game.load.image('avatar', 'assets/avatar.png');
 	game.load.image('bub', 'assets/bub.png');
-	game.load.image('buba', 'assets/buba.png');
-	game.load.image('bubb', 'assets/bubb.png');
-	game.load.image('bubc', 'assets/bubc.png');
-	game.load.image('bubd', 'assets/bubd.png');
-	game.load.image('bube', 'assets/bube.png');
-	game.load.image('bubf', 'assets/bubf.png');
-	game.load.image('bubg', 'assets/bubg.png');
-	game.load.image('bubh', 'assets/bubh.png');
-	game.load.image('bubi', 'assets/bubi.png');
-	game.load.image('bubj', 'assets/bubj.png');
-	game.load.image('bubk', 'assets/bubk.png');
-	game.load.image('bubl', 'assets/bubl.png');
-	game.load.image('bubm', 'assets/bubm.png');
-	game.load.image('bubn', 'assets/bubn.png');
-	game.load.image('bubo', 'assets/bubo.png');
-	game.load.image('bubp', 'assets/bubp.png');
-	game.load.image('bubq', 'assets/bubq.png');
-	game.load.image('bubr', 'assets/bubr.png');
-	game.load.image('bubs', 'assets/bubs.png');
-	game.load.image('bubt', 'assets/bubt.png');
+	game.load.image('bub1', 'assets/buba.png');
+	game.load.image('bub2', 'assets/bubb.png');
+	game.load.image('bub3', 'assets/bubc.png');
+	game.load.image('bub4', 'assets/bubd.png');
+	game.load.image('bub5', 'assets/bube.png');
+	game.load.image('bub6', 'assets/bubf.png');
+	game.load.image('bub7', 'assets/bubg.png');
+	game.load.image('bub8', 'assets/bubh.png');
+	game.load.image('bub9', 'assets/bubi.png');
+	game.load.image('bub10', 'assets/bubj.png');
+	game.load.image('bub11', 'assets/bubk.png');
+	game.load.image('bub12', 'assets/bubl.png');
+	game.load.image('bub13', 'assets/bubm.png');
+	game.load.image('bub14', 'assets/bubn.png');
+	game.load.image('bub15', 'assets/bubo.png');
+	game.load.image('bub16', 'assets/bubp.png');
+	game.load.image('bub17', 'assets/bubq.png');
+	game.load.image('bub18', 'assets/bubr.png');
+	game.load.image('bub19', 'assets/bubs.png');
+	game.load.image('bub20', 'assets/bubt.png');
 	game.load.image('bubmain', 'assets/bubmain.png');
 	game.load.audio('pop', 'assets/pop.mp3');
 	game.load.audio('a1', 'assets/1.mp3');
@@ -130,6 +130,9 @@ var totalBubbles = 50;
 var timerRunning;
 var musicBubble;
 var musicGroup;
+var key;
+var loop;
+var audioKey;
 
 function create()
 {
@@ -216,7 +219,13 @@ function create()
 	
 	pop = game.add.audio('pop');
 	pop.allowMultiple = true;
-	a1 = game.add.audio('a1');
+	audioKey = {};
+	for (loop = 1; loop < 21; loop = loop + 1)
+	{
+		audioKey["bub" + loop] = game.add.audio('a' + loop);
+		audioKey['bub' + loop].allowMultiple = true;
+	}
+	/*a1 = game.add.audio('a1');
 	a1.allowMultiple = true;
 	a2 = game.add.audio('a2');
 	a2.allowMultiple = true;
@@ -255,7 +264,7 @@ function create()
 	a19 = game.add.audio('a19');
 	a19.allowMultiple = true;
 	a20 = game.add.audio('a20');
-	a20.allowMultiple = true;
+	a20.allowMultiple = true;*/
    
 	game.scale.fullScreenScaleMode = Phaser.ScaleManager.SHOW_ALL;
 	game.input.onDown.add(fullScreenStart, this);
@@ -282,7 +291,7 @@ function update()
 	game.physics.arcade.collide(avatar, spawnGroup, spawnBubbles, null, this);
 	game.physics.arcade.collide(avatar, playButton, playMusic, null, this);
 	game.physics.arcade.overlap(avatar, emptyGroup, popEmpty, null, this);
-	//overlap music bubbles
+	game.physics.arcade.overlap(avatar, musicGroup, popMusic, null, this);
 	
 	if (game.physics.arcade.distanceToPointer(avatar, game.input.activePointer) > 60)
 	{
@@ -369,10 +378,10 @@ function makeMusicBubbles(count)
 
 function getBubbleKey()
 {
-	//yoyo
+	return 'bub' + game.rnd.integerInRange(1,20);
 }
 
-function collectDice (avatar, dice) {
+/*function collectDice (avatar, dice) {
     
     // Removes the star from the screen
     dice.kill();
@@ -424,7 +433,7 @@ function collectMoveDice (avatar, movedice) {
    // yo.body.velocity.x = 50;
     //yo.body.velocity.y = 50;
     //badGroup.add(yo);
-}
+}*/
 
 function getBubbleX()
 {
@@ -479,6 +488,26 @@ function popEmpty(avatar, emptyBubble)
 	currentBubbles = currentBubbles - 1;
 	addMusicNote(0);
 	pop.play();
+}
+
+function popMusic(avatar, musicBubble)
+{
+	musicBubble.destroy();
+	currentBubbles = currentBubbles - 1;
+	//addMusicNote(parseIndexKey(musicBubble.key));
+	audioKey[musicBubble.key].play();
+	//kkx = game.add.text(avatar.x, avatar.y, musicBubble.key, style);
+	//kkx.anchor.set(0.5);
+}
+
+function parseKey(key)
+{
+	return a1;
+}
+
+function parseIndexKey(key)
+{
+	return 1;
 }
 
 function addMusicNote(note)

@@ -121,7 +121,15 @@ var spawnButtonInfo4;
 var spawnButtonText = '\u266B';
 var spawnGroup;
 var avatar;
-  
+var count;
+var emptyBubble;
+var emptyGroup;
+var note;
+var currentBubbles = 0;
+var totalBubbles = 50;
+var timerRunning;
+var musicBubble;
+var musicGroup;
 
 function create()
 {
@@ -131,6 +139,10 @@ function create()
 	
 	spawnGroup = game.add.group();
 	game.physics.arcade.enable(spawnGroup);
+	emptyGroup = game.add.group();
+	game.physics.arcade.enable(emptyGroup);
+	musicGroup = game.add.group();
+	game.physics.arcade.enable(musicGroup);
 	
 	playButton = game.add.sprite(614, 888, 'bubmain');
 	playButton.scale.x = .2;
@@ -140,6 +152,7 @@ function create()
 	game.add.tween(playButton).to( { alpha: 1 }, 1000, Phaser.Easing.Linear.None, true, 0, 1000, true);
 	playButtonInfo = game.add.text(playButton.x + 50, playButton.y + 48, playButtonText, style);
 	playButtonInfo.anchor.set(0.5);
+	playButton.body.immovable = true;
 	
 	resetButton = game.add.sprite(1324, 1094, 'bubmain');
 	resetButton.scale.x = .2;
@@ -149,6 +162,7 @@ function create()
 	game.add.tween(resetButton).to( { alpha: 1 }, 1000, Phaser.Easing.Linear.None, true, 0, 1000, true);
 	resetButtonInfo = game.add.text(resetButton.x + 46, resetButton.y + 44, resetButtonText, style);
 	resetButtonInfo.anchor.set(0.5);
+	resetButton.body.immovable = true;
 	
 	spawnButton = game.add.sprite(1300, 280, 'bubmain');
 	spawnButton.scale.x = .2;
@@ -159,6 +173,7 @@ function create()
 	spawnButtonInfo = game.add.text(spawnButton.x + 46, spawnButton.y + 48, spawnButtonText, style);
 	spawnButtonInfo.anchor.set(0.5);
 	spawnGroup.add(spawnButton);
+	spawnButton.body.immovable = true;
 	
 	spawnButton2 = game.add.sprite(550, 400, 'bubmain');
 	spawnButton2.scale.x = .2;
@@ -169,6 +184,7 @@ function create()
 	spawnButtonInfo2 = game.add.text(spawnButton2.x + 46, spawnButton2.y + 48, spawnButtonText, style);
 	spawnButtonInfo2.anchor.set(0.5);
 	spawnGroup.add(spawnButton2);
+	spawnButton2.body.immovable = true;
 	
 	spawnButton3 = game.add.sprite(360, 1220, 'bubmain');
 	spawnButton3.scale.x = .2;
@@ -179,6 +195,7 @@ function create()
 	spawnButtonInfo3 = game.add.text(spawnButton3.x + 46, spawnButton3.y + 48, spawnButtonText, style);
 	spawnButtonInfo3.anchor.set(0.5);
 	spawnGroup.add(spawnButton3);
+	spawnButton3.body.immovable = true;
 	
 	spawnButton4 = game.add.sprite(1600, 1280, 'bubmain');
 	spawnButton4.scale.x = .2;
@@ -189,6 +206,7 @@ function create()
 	spawnButtonInfo4 = game.add.text(spawnButton4.x + 46, spawnButton4.y + 48, spawnButtonText, style);
 	spawnButtonInfo4.anchor.set(0.5);
 	spawnGroup.add(spawnButton4);
+	spawnButton4.body.immovable = true;
 
 	avatar = game.add.sprite(1060, 930, 'avatar');
 	avatar.anchor.set(0.5);
@@ -260,47 +278,98 @@ function fullScreenStart()
 
 function update()
 {
+	game.physics.arcade.collide(avatar, resetButton, resetMusic, null, this);
+	game.physics.arcade.collide(avatar, spawnGroup, spawnBubbles, null, this);
+	game.physics.arcade.collide(avatar, playButton, playMusic, null, this);
+	game.physics.arcade.overlap(avatar, emptyGroup, popEmpty, null, this);
+	//overlap music bubbles
 	
-
-	
-	//movedice.body.velocity.x = speed;
-	//rotatedice.angle += 1;
-
-    //  If the sprite is > 8px away from the pointer then let's move to it
-    if (game.physics.arcade.distanceToPointer(avatar, game.input.activePointer) > 60)
-    {
-        //  Make the object seek to the active pointer (mouse or touch).
-        game.physics.arcade.moveToPointer(avatar, 240);
-    }
-    else
-    {
-        //  Otherwise turn off velocity because we're close enough to the pointer
-        avatar.body.velocity.set(0);
-    }
-    
-    //avatar.rotation = game.physics.arcade.moveToPointer(avatar, 200, game.input.activePointer, 2300);
-
-
-    
-    
-    //game.physics.arcade.collision(avatar, dice);
-    //game.physics.arcade.overlap(avatar, dice, collectDice, null, this);
-    //game.physics.arcade.overlap(avatar, rotatedice, collectRotateDice, null, this);
-    //game.physics.arcade.overlap(avatar, movedice, collectMoveDice, null, this);
-    game.physics.arcade.overlap(avatar, badGroup, collectYo, null, this);
-
-
-
-    //game.world.wrap(avatar, 0, true);
-    //game.world.wrap(movedice, 0, true);
-    
-
+	if (game.physics.arcade.distanceToPointer(avatar, game.input.activePointer) > 60)
+	{
+		game.physics.arcade.moveToPointer(avatar, 240);
+	}
+	else
+	{
+		avatar.body.velocity.set(0);
+	}
 }
 
 function render()
 {
 	//game.debug.cameraInfo(game.camera, 500, 32);
 	//game.debug.spriteCoords(avatar, 32, 32);
+}
+
+function resetMusic()
+{
+	//yo
+}
+
+function playMusic()
+{
+	//yoyo
+}
+
+function spawnBubbles()
+{
+	game.time.events.add(Phaser.Timer.SECOND * 4, startTimer, this);
+	if ((timerRunning != true) && ((totalBubbles - currentBubbles) > 0))
+	{
+		if ((totalBubbles - currentBubbles) < 10)
+		{
+			makeMusicBubbles(totalBubbles - currentBubbles);
+		}
+		else
+		{
+			makeMusicBubbles(5);
+			makeEmptyBubbles(5);
+		}
+	}
+	timerRunning = true;
+}
+
+function startTimer()
+{
+	timerRunning = false;
+}
+
+function makeEmptyBubbles(count)
+{
+	var loop;
+	for (loop = 0; loop < count; loop = loop + 1)
+	{
+		emptyBubble = emptyGroup.create(getBubbleX(), getBubbleY(), 'bub');
+		game.physics.arcade.enable(emptyBubble)
+		emptyBubble.scale.x = .2;
+		emptyBubble.scale.y = .2;
+		emptyBubble.body.velocity.x = game.rnd.integerInRange(-400, 400);
+		emptyBubble.body.velocity.y = game.rnd.integerInRange(-400, 400);
+		emptyBubble.body.collideWorldBounds = true;
+		emptyBubble.body.bounce.setTo(1, 1);
+	}
+	currentBubbles = currentBubbles + count;
+}
+
+function makeMusicBubbles(count)
+{
+	var loop;
+	for (loop = 0; loop < count; loop = loop + 1)
+	{
+		musicBubble = musicGroup.create(getBubbleX(), getBubbleY(), getBubbleKey());
+		game.physics.arcade.enable(musicBubble)
+		musicBubble.scale.x = .2;
+		musicBubble.scale.y = .2;
+		musicBubble.body.velocity.x = game.rnd.integerInRange(-400, 400);
+		musicBubble.body.velocity.y = game.rnd.integerInRange(-400, 400);
+		musicBubble.body.collideWorldBounds = true;
+		musicBubble.body.bounce.setTo(1, 1);
+	}
+	currentBubbles = currentBubbles + count;
+}
+
+function getBubbleKey()
+{
+	//yoyo
 }
 
 function collectDice (avatar, dice) {
@@ -402,6 +471,19 @@ function createBubble()
 		yo.body.collideWorldBounds = true;
 		yo.body.bounce.setTo(1, 1);
 	}
+}
+
+function popEmpty(avatar, emptyBubble)
+{
+	emptyBubble.destroy();
+	currentBubbles = currentBubbles - 1;
+	addMusicNote(0);
+	pop.play();
+}
+
+function addMusicNote(note)
+{
+	//yoyoyo
 }
 
 function killMove()
